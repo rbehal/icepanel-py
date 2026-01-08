@@ -36,12 +36,16 @@ A full reference for this library is available [here](https://github.com/IcePane
 
 ## Latest Helper
 
-Use the IcePanelLandscapeVersion constant to specify the latest version.
+Use the following constant to specify the latest version.
 ```typescript
-await client.model.object.find({
-  landscapeId: 'landscapeId',
-  versionId: IcePanelLandscapeVersion.Latest,
-  modelObjectId: 'modelObjectId'
+import { IcePanelClient, IcePanelLandscapeVersion } from "@icepanel/sdk";
+
+const landscapeId = "landscapeId";
+
+const client = new IcePanelClient({ apiKey: "YOUR_API_KEY", authorization: "YOUR_AUTHORIZATION" });
+await client.model.objects.list({
+  landscapeId,
+  versionId: IcePanelLandscapeVersion.Latest
 });
 ```
 
