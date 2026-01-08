@@ -40,7 +40,7 @@ export class IcePanelClient extends Client {
         if (options.apiKey) {
             updatedOptions.headers = {
                 ...updatedOptions.headers,
-                'X-API-Key': options.apiKey
+                'Authorization': options.apiKey
             }
         }
 
