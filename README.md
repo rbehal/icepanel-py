@@ -27,7 +27,7 @@ The IcePanel TypeScript library provides convenient access to the IcePanel APIs 
 ## Installation
 
 ```sh
-npm i -s @icepanel/sdk
+npm i @icepanel/sdk
 ```
 
 ## Reference
