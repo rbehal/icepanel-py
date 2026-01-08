@@ -22,25 +22,19 @@ export class IcePanelClient extends Client {
         updatedOptions.baseUrl = async () => {
             const baseUrl = options.baseUrl ? await core.Supplier.get(options.baseUrl) : undefined
             if (baseUrl) {
-                const url = new URL(baseUrl)
-                url.pathname = `/${options.apiVersion}`
-                return url.toString()
+                return new URL(`/${options.apiVersion}`, baseUrl).toString()
             }
             const environment = options.environment ? await core.Supplier.get(options.environment) : undefined
             if (environment) {
-                const url = new URL(`https://api.${environment}.icepanel.cloud`)
-                url.pathname = `/${options.apiVersion}`
-                return url.toString()
+                return new URL(`/${options.apiVersion}`, `https://api.${environment}.icepanel.cloud`).toString()
             }
-            const url = new URL(`https://api.icepanel.io`)
-            url.pathname = `/${options.apiVersion}`
-            return url.toString()
+            return new URL(`/${options.apiVersion}`, `https://api.icepanel.io`).toString()
         }
 
         if (options.apiKey) {
             updatedOptions.headers = {
                 ...updatedOptions.headers,
-                'Authorization': options.apiKey
+                'Authorization': `ApiKey ${options.apiKey}`
             }
         }
 
