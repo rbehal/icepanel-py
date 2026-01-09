@@ -1,6 +1,8 @@
 # Specify files that shouldn't be modified by Fern
-src/helpers/*
+src/helpers/ids.ts
+src/helpers/index.ts
 src/index.ts
 src/IcePanelClient.ts
 src/types.ts
 src/consts.ts
+package.json
