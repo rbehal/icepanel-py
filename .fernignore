@@ -5,5 +5,3 @@ src/index.ts
 src/IcePanelClient.ts
 src/types.ts
 src/consts.ts
-package.json
-pnpm-lock.yaml
