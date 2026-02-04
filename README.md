@@ -1,9 +1,8 @@
-# IcePanel TypeScript Library
+# IcePanel Python Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2FIcePanel%2Ficepanel-js)
-[![npm shield](https://img.shields.io/npm/v/@icepanel/sdk)](https://www.npmjs.com/package/@icepanel/sdk)
 
-The IcePanel TypeScript library provides convenient access to the IcePanel APIs from TypeScript.
+The IcePanel Python library provides convenient access to the IcePanel APIs from Python.
 
 ## Table of Contents
 
@@ -20,69 +19,61 @@ The IcePanel TypeScript library provides convenient access to the IcePanel APIs 
   - [Aborting Requests](#aborting-requests)
   - [Access Raw Response Data](#access-raw-response-data)
   - [Logging](#logging)
-  - [Runtime Compatibility](#runtime-compatibility)
 - [Contributing](#contributing)
 
 ## Installation
 
 ```sh
-npm i -s @icepanel/sdk
+pip install icepanel
 ```
 
 ## Reference
 
-A full reference for this library is available [here](https://github.com/IcePanel/icepanel-js/blob/HEAD/./reference.md).
+A full reference for this library is available [here](https://github.com/IcePanel/icepanel-py/blob/HEAD/./reference.md).
 
 ## Getting Started
 
 Use the following constant to specify the latest version.
-```typescript
-import { IcePanelClient, LandscapeVersion } from "@icepanel/sdk";
+```python
+from icepanel import IcePanelClient, LandscapeVersion
 
-const landscapeId = "YOUR_LANDSCAPE_ID";
+landscape_id = "YOUR_LANDSCAPE_ID"
 
-const client = new IcePanelClient({
-  apiKey: "YOUR_API_KEY",
-  apiVersion: "v1"
-});
-await client.model.objects.list({
-  landscapeId,
-  versionId: LandscapeVersion.Latest
-});
+client = IcePanelClient(
+    api_key="YOUR_API_KEY",
+    api_version="v1",
+)
+
+response = client.model.request(
+    "objects",
+    params={
+        "landscapeId": landscape_id,
+        "versionId": LandscapeVersion,
+    },
+)
 ```
 
 
 ## Request and Response Types
 
-The SDK exports all request and response types as TypeScript interfaces. Simply import them with the
-following namespace:
-
-```typescript
-import { IcePanel } from "@icepanel/sdk";
-
-const request: IcePanel.CommentsListRequest = {
-    ...
-};
-```
+The SDK returns response bodies as Python dictionaries when the API responds with JSON. You can also
+use `.request_raw(...)` to access the raw response object alongside the parsed payload.
 
 ## Exception Handling
 
 When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
 will be thrown.
 
-```typescript
-import { IcePanelError } from "@icepanel/sdk";
+```python
+from icepanel import IcePanelError
 
-try {
-    await client.model.objects.list(...);
-} catch (err) {
-    if (err instanceof IcePanelError) {
-        console.log(err.statusCode);
-        console.log(err.message);
-        console.log(err.body);
-        console.log(err.rawResponse);
-    }
-}
+try:
+    client.model.request("objects", params={"landscapeId": landscape_id})
+except IcePanelError as err:
+    print(err.status_code)
+    print(err)
+    print(err.body)
+    print(err.raw_response)
 ```
 
 ## Advanced
@@ -91,33 +82,30 @@ try {
 
 If you would like to send additional headers as part of the request, use the `headers` request option.
 
-```typescript
-import { IcePanelClient } from "@icepanel/sdk";
+```python
+from icepanel import IcePanelClient
 
-const client = new IcePanelClient({
-    ...
-    headers: {
-        'X-Custom-Header': 'custom value'
-    }
-});
+client = IcePanelClient(
+    api_key="YOUR_API_KEY",
+    headers={"X-Custom-Header": "custom value"},
+)
 
-const response = await client.model.objects.list(..., {
-    headers: {
-        'X-Custom-Header': 'custom value'
-    }
-});
+response = client.model.request(
+    "objects",
+    params={"landscapeId": landscape_id},
+    headers={"X-Custom-Header": "custom value"},
+)
 ```
 
 ### Additional Query String Parameters
 
 If you would like to send additional query string parameters as part of the request, use the `queryParams` request option.
 
-```typescript
-const response = await client.model.objects.list(..., {
-    queryParams: {
-        'customQueryParamKey': 'custom query param value'
-    }
-});
+```python
+response = client.model.request(
+    "objects",
+    params={"customQueryParamKey": "custom query param value"},
+)
 ```
 
 ### Retries
@@ -134,136 +122,51 @@ A request is deemed retryable when any of the following HTTP status codes is ret
 
 Use the `maxRetries` request option to configure this behavior.
 
-```typescript
-const response = await client.model.objects.list(..., {
-    maxRetries: 0 // override maxRetries at the request level
-});
+```python
+response = client.model.request(
+    "objects",
+    params={"landscapeId": landscape_id},
+    max_retries=0,  # override max retries at the request level
+)
 ```
 
 ### Timeouts
 
 The SDK defaults to a 60 second timeout. Use the `timeoutInSeconds` option to configure this behavior.
 
-```typescript
-const response = await client.model.objects.list(..., {
-    timeoutInSeconds: 30 // override timeout to 30s
-});
+```python
+response = client.model.request(
+    "objects",
+    params={"landscapeId": landscape_id},
+    timeout=30,  # override timeout to 30s
+)
 ```
 
 ### Aborting Requests
 
-The SDK allows users to abort requests at any point by passing in an abort signal.
-
-```typescript
-const controller = new AbortController();
-const response = await client.model.objects.list(..., {
-    abortSignal: controller.signal
-});
-controller.abort(); // aborts the request
-```
+Python HTTP clients can be interrupted by cancelling the running task or thread that issued the
+request. If you need cooperative cancellation, wrap requests in your own timeout or task management.
 
 ### Access Raw Response Data
 
-The SDK provides access to raw response data, including headers, through the `.withRawResponse()` method.
-The `.withRawResponse()` method returns a promise that results to an object with a `data` and a `rawResponse` property.
+The SDK provides access to raw response data, including headers, through the `.request_raw()` method.
+The `.request_raw()` method returns a tuple with the parsed data and the raw response object.
 
-```typescript
-const { data, rawResponse } = await client.model.objects.list(...).withRawResponse();
+```python
+data, raw_response = client.request_raw(
+    "GET",
+    "model/objects",
+    params={"landscapeId": landscape_id},
+)
 
-console.log(data);
-console.log(rawResponse.headers['X-My-Header']);
+print(data)
+print(raw_response.headers.get("X-My-Header"))
 ```
 
 ### Logging
 
-The SDK supports logging. You can configure the logger by passing in a `logging` object to the client options.
-
-```typescript
-import { IcePanelClient, logging } from "@icepanel/sdk";
-
-const client = new IcePanelClient({
-    ...
-    logging: {
-        level: logging.LogLevel.Debug, // defaults to logging.LogLevel.Info
-        logger: new logging.ConsoleLogger(), // defaults to ConsoleLogger
-        silent: false, // defaults to true, set to false to enable logging
-    }
-});
-```
-The `logging` object can have the following properties:
-- `level`: The log level to use. Defaults to `logging.LogLevel.Info`.
-- `logger`: The logger to use. Defaults to a `logging.ConsoleLogger`.
-- `silent`: Whether to silence the logger. Defaults to `true`.
-
-The `level` property can be one of the following values:
-- `logging.LogLevel.Debug`
-- `logging.LogLevel.Info`
-- `logging.LogLevel.Warn`
-- `logging.LogLevel.Error`
-
-To provide a custom logger, you can pass in an object that implements the `logging.ILogger` interface.
-
-<details>
-<summary>Custom logger examples</summary>
-
-Here's an example using the popular `winston` logging library.
-```ts
-import winston from 'winston';
-
-const winstonLogger = winston.createLogger({...});
-
-const logger: logging.ILogger = {
-    debug: (msg, ...args) => winstonLogger.debug(msg, ...args),
-    info: (msg, ...args) => winstonLogger.info(msg, ...args),
-    warn: (msg, ...args) => winstonLogger.warn(msg, ...args),
-    error: (msg, ...args) => winstonLogger.error(msg, ...args),
-};
-```
-
-Here's an example using the popular `pino` logging library.
-
-```ts
-import pino from 'pino';
-
-const pinoLogger = pino({...});
-
-const logger: logging.ILogger = {
-  debug: (msg, ...args) => pinoLogger.debug(args, msg),
-  info: (msg, ...args) => pinoLogger.info(args, msg),
-  warn: (msg, ...args) => pinoLogger.warn(args, msg),
-  error: (msg, ...args) => pinoLogger.error(args, msg),
-};
-```
-</details>
-
-
-### Runtime Compatibility
-
-
-The SDK works in the following runtimes:
-
-
-
-- Node.js 18+
-- Vercel
-- Cloudflare Workers
-- Deno v1.25+
-- Bun 1.0+
-- React Native
-
-### Customizing Fetch Client
-
-The SDK provides a way for you to customize the underlying HTTP client / Fetch function. If you're running in an
-unsupported environment, this provides a way for you to break glass and ensure the SDK works.
-
-```typescript
-import { IcePanelClient } from "@icepanel/sdk";
-
-const client = new IcePanelClient({
-    ...
-    fetcher: // provide your implementation here
-});
-```
+The Python SDK relies on the standard library `logging` module for request-level logging. If you need
+HTTP-level logs, configure logging around `urllib` in your application.
 
 ## Contributing
 
